@@ -13,3 +13,5 @@ The operations for which the API has remained unchanged here can be called using
 Otherwise, the functions have mostly been wrapped into subroutines with their names having '_F' appended.
 Many routines have somewhat misleadingly been declared `PURE` to assist in calling them from other pure code.
 Please check the source code for more information.
+
+For a real-life example, please see [AccJac](https://github.com/venovako/AccJac).
