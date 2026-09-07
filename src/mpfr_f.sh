@@ -1,5 +1,28 @@
 #!/bin/bash
-for I in ABS CBRT NEG REC_SQRT SQR SQRT
+for I in LOG2 PI EULER CATALAN
+do
+    echo "  PURE SUBROUTINE MPFR_CONST_${I}_F(ROP, RND)"
+    echo "    IMPLICIT NONE"
+    echo "    INTERFACE"
+    echo "       PURE FUNCTION MPFR_CONST_${I}(ROP, RND) BIND(C)"
+    echo "         IMPORT"
+    echo "         IMPLICIT NONE"
+    echo "         TYPE(c_ptr), INTENT(IN), VALUE :: ROP"
+    echo "         INTEGER(KIND=MPFR_RND_KIND), INTENT(IN), VALUE :: RND"
+    echo "         INTEGER(KIND=c_int) :: MPFR_CONST_${I}"
+    echo "       END FUNCTION MPFR_CONST_${I}"
+    echo "    END INTERFACE"
+    echo "    TYPE(MPFR_T), INTENT(INOUT), TARGET :: ROP"
+    echo "    INTEGER(KIND=MPFR_RND_KIND), INTENT(IN), OPTIONAL :: RND"
+    echo "    IF (ROP%TAG .EQ. TAG_NULL) CALL MPFR_INIT_F(ROP)"
+    echo "    IF (PRESENT(RND)) THEN"
+    echo "       ROP%TAG = MPFR_CONST_${I}(C_LOC(ROP), RND)"
+    echo "    ELSE ! default rounding"
+    echo "       ROP%TAG = MPFR_CONST_${I}(C_LOC(ROP), MPFR_RND_DEFAULT)"
+    echo "    END IF"
+    echo "  END SUBROUTINE MPFR_CONST_${I}_F"
+done
+for I in ABS ACOS ACOSH ACOSPI AI ASIN ASINH ASINPI ATAN ATANH ATANPI CBRT COS COSH COSPI COT COTH CSC CSCH DIGAMMA EINT ERF ERFC EXP EXP2 EXP10 EXPM1 EXP2M1 EXP10M1 FRAC GAMMA J0 J1 LI2 LNGAMMA LOG LOG2 LOG10 LOG1P LOG2P1 LOG10P1 NEG REC_SQRT RINT SEC SECH SIN SINH SINPI SQR SQRT TAN TANH TANPI Y0 Y1 ZETA
 do
     echo "  PURE SUBROUTINE MPFR_${I}_F(ROP, OP, RND)"
     echo "    IMPLICIT NONE"
@@ -31,7 +54,7 @@ do
     echo "    END IF"
     echo "  END SUBROUTINE MPFR_${I}_F"
 done
-for I in ADD DIM DIV HYPOT MUL POW SUB
+for I in ADD AGM ATAN2 ATAN2PI BETA DIM DIV FMOD GAMMA_INC HYPOT MAX MIN MUL POW POWR REMAINDER SUB
 do
     echo "  PURE SUBROUTINE MPFR_${I}_F(ROP, OP1, OP2, RND)"
     echo "    IMPLICIT NONE"
@@ -63,7 +86,51 @@ do
     echo "    END IF"
     echo "  END SUBROUTINE MPFR_${I}_F"
 done
-for I in ADD_SI DIV_2SI DIV_SI MUL_2SI MUL_SI ROOTN_SI SUB_SI
+for I in MODF SIN_COS SINH_COSH
+do
+    echo "  PURE SUBROUTINE MPFR_${I}_F(SOP, COP, OP, RND)"
+    echo "    IMPLICIT NONE"
+    echo "    INTERFACE"
+    echo "       PURE FUNCTION MPFR_${I}(SOP, COP, OP, RND) BIND(C)"
+    echo "         IMPORT"
+    echo "         IMPLICIT NONE"
+    echo "         TYPE(c_ptr), INTENT(IN), VALUE :: SOP, COP, OP"
+    echo "         INTEGER(KIND=MPFR_RND_KIND), INTENT(IN), VALUE :: RND"
+    echo "         INTEGER(KIND=c_int) :: MPFR_${I}"
+    echo "       END FUNCTION MPFR_${I}"
+    echo "    END INTERFACE"
+    echo "    TYPE(MPFR_T), INTENT(INOUT), TARGET :: SOP, COP"
+    echo "    TYPE(MPFR_T), INTENT(IN), TARGET :: OP"
+    echo "    INTEGER(KIND=MPFR_RND_KIND), INTENT(IN), OPTIONAL :: RND"
+    echo "    INTEGER(KIND=c_int) :: RET"
+    echo "    IF (SOP%TAG .EQ. TAG_NULL) THEN"
+    echo "       IF (OP%TAG .EQ. TAG_NULL) THEN"
+    echo "          CALL MPFR_INIT_F(SOP)"
+    echo "       ELSE"
+    echo "          CALL MPFR_INIT_F(SOP, OP%MPFR_PREC)"
+    echo "       END IF"
+    echo "    END IF"
+    echo "    IF (COP%TAG .EQ. TAG_NULL) THEN"
+    echo "       IF (OP%TAG .EQ. TAG_NULL) THEN"
+    echo "          CALL MPFR_INIT_F(COP)"
+    echo "       ELSE"
+    echo "          CALL MPFR_INIT_F(COP, OP%MPFR_PREC)"
+    echo "       END IF"
+    echo "    END IF"
+    echo "    IF (OP%TAG .EQ. TAG_NULL) THEN"
+    echo "       CALL MPFR_SET_NAN(SOP)"
+    echo "       CALL MPFR_SET_NAN(COP)"
+    echo "       RET = 0_c_int"
+    echo "    ELSE IF (PRESENT(RND)) THEN"
+    echo "       RET = MPFR_${I}(C_LOC(SOP), C_LOC(COP), C_LOC(OP), RND)"
+    echo "    ELSE ! default rounding"
+    echo "       RET = MPFR_${I}(C_LOC(SOP), C_LOC(COP), C_LOC(OP), MPFR_RND_DEFAULT)"
+    echo "    END IF"
+    echo "    COP%TAG = RET / 4_c_int"
+    echo "    SOP%TAG = MOD(RET, 4_c_int)"
+    echo "  END SUBROUTINE MPFR_${I}_F"
+done
+for I in ADD_SI COMPOUND_SI DIV_2SI DIV_SI MUL_2SI MUL_SI POW_SI ROOTN_SI SUB_SI
 do
     echo "  PURE SUBROUTINE MPFR_${I}_F(ROP, OP1, OP2, RND)"
     echo "    IMPLICIT NONE"
@@ -97,7 +164,7 @@ do
     echo "    END IF"
     echo "  END SUBROUTINE MPFR_${I}_F"
 done
-for I in SI_DIV SI_SUB
+for I in JN SI_DIV SI_SUB YN
 do
     echo "  PURE SUBROUTINE MPFR_${I}_F(ROP, OP1, OP2, RND)"
     echo "    IMPLICIT NONE"
