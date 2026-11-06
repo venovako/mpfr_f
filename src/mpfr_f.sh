@@ -66,6 +66,34 @@ do
     echo "    END IF"
     echo "  END FUNCTION MPFR_${I}_P_F"
 done
+for I in CEIL FLOOR ROUND ROUNDEVEN TRUNC
+do
+    echo "  PURE SUBROUTINE MPFR_${I}_F(ROP, OP)"
+    echo "    IMPLICIT NONE"
+    echo "    INTERFACE"
+    echo "       PURE FUNCTION MPFR_${I}(ROP, OP) BIND(C)"
+    echo "         IMPORT"
+    echo "         IMPLICIT NONE"
+    echo "         TYPE(c_ptr), INTENT(IN), VALUE :: ROP, OP"
+    echo "         INTEGER(KIND=c_int) :: MPFR_${I}"
+    echo "       END FUNCTION MPFR_${I}"
+    echo "    END INTERFACE"
+    echo "    TYPE(MPFR_T), INTENT(INOUT), TARGET :: ROP"
+    echo "    TYPE(MPFR_T), INTENT(IN), TARGET :: OP"
+    echo "    IF (ROP%TAG .EQ. TAG_NULL) THEN"
+    echo "       IF (OP%TAG .EQ. TAG_NULL) THEN"
+    echo "          CALL MPFR_INIT_F(ROP)"
+    echo "       ELSE"
+    echo "          CALL MPFR_INIT_F(ROP, OP%MPFR_PREC)"
+    echo "       END IF"
+    echo "    END IF"
+    echo "    IF (OP%TAG .EQ. TAG_NULL) THEN"
+    echo "       CALL MPFR_SET_NAN_F(ROP)"
+    echo "    ELSE ! initialized"
+    echo "       ROP%TAG = MPFR_${I}(C_LOC(ROP), C_LOC(OP))"
+    echo "    END IF"
+    echo "  END SUBROUTINE MPFR_${I}_F"
+done
 for I in LOG2 PI EULER CATALAN
 do
     echo "  PURE SUBROUTINE MPFR_CONST_${I}_F(ROP, RND)"
