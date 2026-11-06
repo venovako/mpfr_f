@@ -1,4 +1,71 @@
 #!/bin/bash
+for I in ULONG SLONG UINT SINT USHORT SSHORT UINTMAX SINTMAX
+do
+    echo "  ELEMENTAL FUNCTION MPFR_FITS_${I}_P_F(OP, RND)"
+    echo "    IMPLICIT NONE"
+    echo "    INTERFACE"
+    echo "       PURE FUNCTION MPFR_FITS_${I}_P(OP, RND) BIND(C)"
+    echo "         IMPORT"
+    echo "         IMPLICIT NONE"
+    echo "         TYPE(MPFR_T), INTENT(IN) :: OP"
+    echo "         INTEGER(KIND=MPFR_RND_KIND), INTENT(IN), VALUE :: RND"
+    echo "         INTEGER(KIND=c_int) :: MPFR_FITS_${I}_P"
+    echo "       END FUNCTION MPFR_FITS_${I}_P"
+    echo "    END INTERFACE"
+    echo "    TYPE(MPFR_T), INTENT(IN) :: OP"
+    echo "    INTEGER(KIND=MPFR_RND_KIND), INTENT(IN), OPTIONAL :: RND"
+    echo "    LOGICAL :: MPFR_FITS_${I}_P_F"
+    echo "    IF (OP%TAG .EQ. TAG_NULL) THEN"
+    echo "       MPFR_FITS_${I}_P_F = .FALSE."
+    echo "    ELSE IF (PRESENT(RND)) THEN"
+    echo "       MPFR_FITS_${I}_P_F = (MPFR_FITS_${I}_P(OP, RND) .NE. 0_c_int)"
+    echo "    ELSE ! default rounding"
+    echo "       MPFR_FITS_${I}_P_F = (MPFR_FITS_${I}_P(OP, MPFR_RND_DEFAULT) .NE. 0_c_int)"
+    echo "    END IF"
+    echo "  END FUNCTION MPFR_FITS_${I}_P_F"
+done
+for I in NAN INF NUMBER ZERO REGULAR INTEGER
+do
+    echo "  ELEMENTAL FUNCTION MPFR_${I}_P_F(OP)"
+    echo "    IMPLICIT NONE"
+    echo "    INTERFACE"
+    echo "       PURE FUNCTION MPFR_${I}_P(OP) BIND(C)"
+    echo "         IMPORT"
+    echo "         IMPLICIT NONE"
+    echo "         TYPE(MPFR_T), INTENT(IN) :: OP"
+    echo "         INTEGER(KIND=c_int) :: MPFR_${I}_P"
+    echo "       END FUNCTION MPFR_${I}_P"
+    echo "    END INTERFACE"
+    echo "    TYPE(MPFR_T), INTENT(IN) :: OP"
+    echo "    LOGICAL :: MPFR_${I}_P_F"
+    echo "    IF (OP%TAG .EQ. TAG_NULL) THEN"
+    echo "       MPFR_${I}_P_F = .FALSE."
+    echo "    ELSE ! initialized"
+    echo "       MPFR_${I}_P_F = (MPFR_${I}_P(OP) .NE. 0_c_int)"
+    echo "    END IF"
+    echo "  END FUNCTION MPFR_${I}_P_F"
+done
+for I in GREATER GREATEREQUAL LESS LESSEQUAL EQUAL LESSGREATER UNORDERED TOTAL_ORDER
+do
+    echo "  ELEMENTAL FUNCTION MPFR_${I}_P_F(L, R)"
+    echo "    IMPLICIT NONE"
+    echo "    INTERFACE"
+    echo "       PURE FUNCTION MPFR_${I}_P(L, R) BIND(C)"
+    echo "         IMPORT"
+    echo "         IMPLICIT NONE"
+    echo "         TYPE(MPFR_T), INTENT(IN) :: L, R"
+    echo "         INTEGER(KIND=c_int) :: MPFR_${I}_P"
+    echo "       END FUNCTION MPFR_${I}_P"
+    echo "    END INTERFACE"
+    echo "    TYPE(MPFR_T), INTENT(IN) :: L, R"
+    echo "    LOGICAL :: MPFR_${I}_P_F"
+    echo "    IF ((L%TAG .EQ. TAG_NULL) .OR. (R%TAG .EQ. TAG_NULL)) THEN"
+    echo "       MPFR_${I}_P_F = .FALSE."
+    echo "    ELSE ! initialized"
+    echo "       MPFR_${I}_P_F = (MPFR_${I}_P(L, R) .NE. 0_c_int)"
+    echo "    END IF"
+    echo "  END FUNCTION MPFR_${I}_P_F"
+done
 for I in LOG2 PI EULER CATALAN
 do
     echo "  PURE SUBROUTINE MPFR_CONST_${I}_F(ROP, RND)"
@@ -22,7 +89,7 @@ do
     echo "    END IF"
     echo "  END SUBROUTINE MPFR_CONST_${I}_F"
 done
-for I in ABS ACOS ACOSH ACOSPI AI ASIN ASINH ASINPI ATAN ATANH ATANPI CBRT COS COSH COSPI COT COTH CSC CSCH DIGAMMA EINT ERF ERFC EXP EXP2 EXP10 EXPM1 EXP2M1 EXP10M1 FRAC GAMMA J0 J1 LI2 LNGAMMA LOG LOG2 LOG10 LOG1P LOG2P1 LOG10P1 NEG REC_SQRT RINT SEC SECH SIN SINH SINPI SQR SQRT TAN TANH TANPI Y0 Y1 ZETA
+for I in ABS ACOS ACOSH ACOSPI AI ASIN ASINH ASINPI ATAN ATANH ATANPI CBRT COS COSH COSPI COT COTH CSC CSCH DIGAMMA EINT ERF ERFC EXP EXP2 EXP10 EXPM1 EXP2M1 EXP10M1 FRAC GAMMA J0 J1 LI2 LNGAMMA LOG LOG2 LOG10 LOG1P LOG2P1 LOG10P1 NEG REC_SQRT RINT RINT_CEIL RINT_FLOOR RINT_ROUND RINT_ROUNDEVEN RINT_TRUNC SEC SECH SIN SINH SINPI SQR SQRT TAN TANH TANPI Y0 Y1 ZETA
 do
     echo "  PURE SUBROUTINE MPFR_${I}_F(ROP, OP, RND)"
     echo "    IMPLICIT NONE"
